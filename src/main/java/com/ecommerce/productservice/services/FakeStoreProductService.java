@@ -1,8 +1,10 @@
 package com.ecommerce.productservice.services;
 
-import com.ecommerce.productservice.dtos.FakeStoreProductDto;
-import com.ecommerce.productservice.models.Category;
+import com.ecommerce.productservice.dtos.FakeStore.FakeStoreRequestProductDto;
+import com.ecommerce.productservice.dtos.FakeStore.FakeStoreResponseProductDto;
 import com.ecommerce.productservice.models.Product;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,18 +21,18 @@ public class FakeStoreProductService implements ProductService{
 
     @Override
     public Product getSingleProduct(Long productId) {
-        FakeStoreProductDto fakeStoreProductDto = restTemplate.getForObject("https://fakestoreapi.com/products/" + productId, FakeStoreProductDto.class);
+        FakeStoreResponseProductDto fakeStoreResponseProductDto = restTemplate.getForObject("https://fakestoreapi.com/products/" + productId, FakeStoreResponseProductDto.class);
 
-        return convertFakeStoreProductDto(fakeStoreProductDto);
+        return fakeStoreResponseProductDto.convertToProduct();
     }
 
     @Override
     public List<Product> getAllProducts() {
-        FakeStoreProductDto[] fakeStoreProductDtos = restTemplate.getForObject("https://fakestoreapi.com/products", FakeStoreProductDto[].class);
+        FakeStoreResponseProductDto[] fakeStoreResponseProductDtos = restTemplate.getForObject("https://fakestoreapi.com/products", FakeStoreResponseProductDto[].class);
 
         List<Product> products = new ArrayList<>();
-        for(FakeStoreProductDto fakeStoreProductDto : fakeStoreProductDtos){
-            products.add(convertFakeStoreProductDto(fakeStoreProductDto));
+        for(FakeStoreResponseProductDto fakeStoreResponseProductDto : fakeStoreResponseProductDtos){
+            products.add(fakeStoreResponseProductDto.convertToProduct());
         }
 
         return products;
@@ -38,35 +40,30 @@ public class FakeStoreProductService implements ProductService{
 
     @Override
     public Product createProduct(Product product) {
-        return null;
+        FakeStoreRequestProductDto fakeStoreRequestProductDto = FakeStoreRequestProductDto.createFakeStoreProductDtoFromObject(product);
+
+        FakeStoreResponseProductDto fakeStoreResponseProductDto = restTemplate.postForObject("https://fakestoreapi.com/products", fakeStoreRequestProductDto, FakeStoreResponseProductDto.class);
+
+        return fakeStoreResponseProductDto.convertToProduct();
     }
 
     @Override
     public void deleteProduct(Long productId) {
-
+        ResponseEntity<FakeStoreResponseProductDto> fakeStoreResponseProductDtoResponseEntity = restTemplate.exchange("https://fakestoreapi.com/products/" + productId, HttpMethod.DELETE, null, FakeStoreResponseProductDto.class);
     }
 
     @Override
-    public void updateProduct(Long productId, Product product) {
+    public Product updateProduct(Long productId, Product product) {
+/*        FakeStoreRequestProductDto fakeStoreRequestProductDto = FakeStoreRequestProductDto.createFakeStoreProductDtoFromObject(product);
 
+        FakeStoreResponseProductDto fakeStoreResponseProductDto = restTemplate.patchForObject("https://fakestoreapi.com/products/" + productId, fakeStoreRequestProductDto, FakeStoreResponseProductDto.class);
+
+        return fakeStoreResponseProductDto.convertToProduct();*/
+        return new Product();
     }
 
     @Override
     public void replaceProduct(Long productId, Product product) {
 
-    }
-
-    private Product convertFakeStoreProductDto(FakeStoreProductDto fakeStoreProductDto) {
-        Product product = new Product();
-        product.setCategory(new Category());
-
-        product.setId(fakeStoreProductDto.getId());
-        product.setTitle(fakeStoreProductDto.getTitle());
-        product.setPrice(fakeStoreProductDto.getPrice());
-        product.getCategory().setValue(fakeStoreProductDto.getCategory());
-        product.setDescription(fakeStoreProductDto.getDescription());
-        product.setImage(fakeStoreProductDto.getImage());
-
-        return product;
     }
 }

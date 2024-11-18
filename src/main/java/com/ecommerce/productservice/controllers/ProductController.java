@@ -1,5 +1,6 @@
 package com.ecommerce.productservice.controllers;
 
+import com.ecommerce.productservice.dtos.Products.CreateProductDto;
 import com.ecommerce.productservice.models.Product;
 import com.ecommerce.productservice.services.ProductService;
 import org.springframework.web.bind.annotation.*;
@@ -26,18 +27,18 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product){
-        return new Product();
+    public Product createProduct(@RequestBody CreateProductDto createProductDto){
+        return productService.createProduct(createProductDto.convertToProductObject());
     }
 
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable(name = "id") Long productId){
-        return;
+        productService.deleteProduct(productId);
     }
 
     @PatchMapping("/{id}")
-    public void updateProduct(@PathVariable(name = "id") Long productId, @RequestBody Product product){
-        return;
+    public Product updateProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto){
+        return productService.updateProduct(productId, createProductDto.convertToProductObject());
     }
 
     @PutMapping("/{id}")
