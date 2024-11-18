@@ -3,6 +3,7 @@ package com.ecommerce.productservice.services;
 import com.ecommerce.productservice.dtos.FakeStore.FakeStoreRequestProductDto;
 import com.ecommerce.productservice.dtos.FakeStore.FakeStoreResponseProductDto;
 import com.ecommerce.productservice.models.Product;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,13 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public void replaceProduct(Long productId, Product product) {
+    public Product replaceProduct(Long productId, Product product) {
+        FakeStoreRequestProductDto fakeStoreRequestProductDto = FakeStoreRequestProductDto.createFakeStoreProductDtoFromObject(product);
 
+        HttpEntity<FakeStoreRequestProductDto> fakeStoreRequestProductDtoHttpEntity = new HttpEntity<>(fakeStoreRequestProductDto);
+
+        ResponseEntity<FakeStoreResponseProductDto> fakeStoreResponseProductDtoResponseEntity = restTemplate.exchange("https://fakestoreapi.com/products/" + productId, HttpMethod.PUT, fakeStoreRequestProductDtoHttpEntity, FakeStoreResponseProductDto.class);
+
+        return fakeStoreResponseProductDtoResponseEntity.getBody().convertToProduct();
     }
 }

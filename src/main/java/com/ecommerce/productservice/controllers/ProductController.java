@@ -42,7 +42,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public void replaceProduct(@PathVariable(name = "id") Long productId, @RequestBody Product product){
-        return;
+    public Product replaceProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto){
+        return productService.replaceProduct(productId, createProductDto.convertToProductObject());
     }
 }
