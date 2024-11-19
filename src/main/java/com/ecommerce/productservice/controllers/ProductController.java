@@ -1,8 +1,12 @@
 package com.ecommerce.productservice.controllers;
 
 import com.ecommerce.productservice.dtos.Products.CreateProductDto;
+import com.ecommerce.productservice.dtos.Products.GetAllProductsResponseDto;
+import com.ecommerce.productservice.dtos.Products.ResponseProductDto;
 import com.ecommerce.productservice.models.Product;
 import com.ecommerce.productservice.services.ProductService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,32 +21,74 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public Product getSingleProduct(@PathVariable(name = "id") Long productId){
-        return productService.getSingleProduct(productId);
+    public ResponseEntity<ResponseProductDto> getSingleProduct(@PathVariable(name = "id") Long productId){
+        Product product = productService.getSingleProduct(productId);
+
+        ResponseEntity<ResponseProductDto> responseEntity = new ResponseEntity<>(
+                ResponseProductDto.createFromProduct(product),
+                HttpStatus.OK
+        );
+
+        return responseEntity;
     }
 
     @GetMapping
-    public List<Product> getAllProducts(){
-        return productService.getAllProducts();
+    public ResponseEntity<GetAllProductsResponseDto> getAllProducts(){
+        List<Product> productList = productService.getAllProducts();
+
+        ResponseEntity<GetAllProductsResponseDto> responseEntity = new ResponseEntity<>(
+                GetAllProductsResponseDto.createGetAllProductsResponseDto(productList),
+                HttpStatus.OK
+        );
+
+        return responseEntity;
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody CreateProductDto createProductDto){
-        return productService.createProduct(createProductDto.convertToProductObject());
+    public ResponseEntity<ResponseProductDto> createProduct(@RequestBody CreateProductDto createProductDto){
+        Product product = productService.createProduct(createProductDto.convertToProductObject());
+
+        ResponseEntity<ResponseProductDto> responseEntity = new ResponseEntity<>(
+                ResponseProductDto.createFromProduct(product),
+                HttpStatus.OK
+        );
+
+        return responseEntity;
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable(name = "id") Long productId){
+    public ResponseEntity<String> deleteProduct(@PathVariable(name = "id") Long productId){
         productService.deleteProduct(productId);
+
+        ResponseEntity<String> responseEntity = new ResponseEntity<>(
+                "Product deleted successfully",
+                HttpStatus.OK
+        );
+
+        return responseEntity;
     }
 
     @PatchMapping("/{id}")
-    public Product updateProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto){
-        return productService.updateProduct(productId, createProductDto.convertToProductObject());
+    public ResponseEntity<ResponseProductDto> updateProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto){
+        Product product = productService.updateProduct(productId, createProductDto.convertToProductObject());
+
+        ResponseEntity<ResponseProductDto> responseEntity = new ResponseEntity<>(
+                ResponseProductDto.createFromProduct(product),
+                HttpStatus.OK
+        );
+
+        return responseEntity;
     }
 
     @PutMapping("/{id}")
-    public Product replaceProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto){
-        return productService.replaceProduct(productId, createProductDto.convertToProductObject());
+    public ResponseEntity<ResponseProductDto> replaceProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto){
+        Product product = productService.replaceProduct(productId, createProductDto.convertToProductObject());
+
+        ResponseEntity<ResponseProductDto> responseEntity = new ResponseEntity<>(
+                ResponseProductDto.createFromProduct(product),
+                HttpStatus.OK
+        );
+
+        return responseEntity;
     }
 }
