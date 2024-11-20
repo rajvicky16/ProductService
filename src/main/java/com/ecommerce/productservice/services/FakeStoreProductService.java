@@ -3,6 +3,7 @@ package com.ecommerce.productservice.services;
 import com.ecommerce.productservice.configs.Patcher;
 import com.ecommerce.productservice.dtos.FakeStore.FakeStoreRequestProductDto;
 import com.ecommerce.productservice.dtos.FakeStore.FakeStoreResponseProductDto;
+import com.ecommerce.productservice.exceptions.ProductNotFoundException;
 import com.ecommerce.productservice.models.Product;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -24,8 +25,12 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public Product getSingleProduct(Long productId) {
+    public Product getSingleProduct(Long productId) throws ProductNotFoundException {
         FakeStoreResponseProductDto fakeStoreResponseProductDto = restTemplate.getForObject("https://fakestoreapi.com/products/" + productId, FakeStoreResponseProductDto.class);
+
+        if(fakeStoreResponseProductDto == null){
+            throw new ProductNotFoundException(productId, "Product Not Found. Please enter valid Product ID");
+        }
 
         return fakeStoreResponseProductDto.convertToProduct();
     }
@@ -57,7 +62,7 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public Product updateProduct(Long productId, Product product) throws IllegalAccessException {
+    public Product updateProduct(Long productId, Product product) throws IllegalAccessException, ProductNotFoundException {
         Product existingFakeStoreProduct = getSingleProduct(productId);
         patcher.doPatchUpdateForProduct(existingFakeStoreProduct, product);
 
@@ -69,7 +74,9 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public Product replaceProduct(Long productId, Product product) {
+    public Product replaceProduct(Long productId, Product product) throws ProductNotFoundException {
+        getSingleProduct(productId);
+
         FakeStoreRequestProductDto fakeStoreRequestProductDto = FakeStoreRequestProductDto.createFakeStoreProductDtoFromObject(product);
 
         HttpEntity<FakeStoreRequestProductDto> fakeStoreRequestProductDtoHttpEntity = new HttpEntity<>(fakeStoreRequestProductDto);

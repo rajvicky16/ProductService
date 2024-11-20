@@ -21,7 +21,7 @@ public class CreateProductDto {
         createProductDto.setId(product.getId());
         createProductDto.setTitle(product.getTitle());
         createProductDto.setPrice(product.getPrice());
-        createProductDto.setCategory(product.getCategory().getValue());
+        createProductDto.setCategory(product.getCategory() == null ? null : product.getCategory().getValue());
         createProductDto.setDescription(product.getDescription());
         createProductDto.setImage(product.getImage());
 

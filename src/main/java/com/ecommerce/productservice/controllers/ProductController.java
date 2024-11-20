@@ -3,6 +3,7 @@ package com.ecommerce.productservice.controllers;
 import com.ecommerce.productservice.dtos.Products.CreateProductDto;
 import com.ecommerce.productservice.dtos.Products.GetAllProductsResponseDto;
 import com.ecommerce.productservice.dtos.Products.ResponseProductDto;
+import com.ecommerce.productservice.exceptions.ProductNotFoundException;
 import com.ecommerce.productservice.models.Product;
 import com.ecommerce.productservice.services.ProductService;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseProductDto> getSingleProduct(@PathVariable(name = "id") Long productId){
+    public ResponseEntity<ResponseProductDto> getSingleProduct(@PathVariable(name = "id") Long productId) throws ProductNotFoundException {
         Product product = productService.getSingleProduct(productId);
 
         ResponseEntity<ResponseProductDto> responseEntity = new ResponseEntity<>(
@@ -69,7 +70,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ResponseProductDto> updateProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto) throws IllegalAccessException {
+    public ResponseEntity<ResponseProductDto> updateProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto) throws IllegalAccessException, ProductNotFoundException {
         Product product = productService.updateProduct(productId, createProductDto.convertToProductObject());
 
         ResponseEntity<ResponseProductDto> responseEntity = new ResponseEntity<>(
@@ -81,7 +82,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseProductDto> replaceProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto){
+    public ResponseEntity<ResponseProductDto> replaceProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto) throws ProductNotFoundException {
         Product product = productService.replaceProduct(productId, createProductDto.convertToProductObject());
 
         ResponseEntity<ResponseProductDto> responseEntity = new ResponseEntity<>(

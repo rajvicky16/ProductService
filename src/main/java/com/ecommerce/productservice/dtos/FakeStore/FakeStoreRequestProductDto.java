@@ -18,7 +18,7 @@ public class FakeStoreRequestProductDto {
 
         fakeStoreRequestProductDto.setTitle(product.getTitle());
         fakeStoreRequestProductDto.setPrice(product.getPrice());
-        fakeStoreRequestProductDto.setCategory(product.getCategory().getValue());
+        fakeStoreRequestProductDto.setCategory(product.getCategory() == null ? null : product.getCategory().getValue());
         fakeStoreRequestProductDto.setDescription(product.getDescription());
         fakeStoreRequestProductDto.setImage(product.getImage());
 
