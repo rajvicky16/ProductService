@@ -31,13 +31,15 @@ public class CreateProductDto {
     public Product convertToProductObject() {
         Product product = new Product();
 
-        product.setId(this.id);
-        product.setTitle(this.title);
-        product.setPrice(this.price);
-        product.setCategory(new Category());
-        product.getCategory().setValue(this.category);
-        product.setDescription(this.description);
-        product.setImage(this.image);
+        product.setId(this.id == null ? null : this.id);
+        product.setTitle(this.title == null ? null : this.title);
+        product.setPrice(this.price == null ? null : this.price);
+        if(this.category != null) {
+            product.setCategory(new Category());
+            product.getCategory().setValue(this.category);
+        }
+        product.setDescription(this.description == null ? null : this.description);
+        product.setImage(this.image == null ? null : this.image);
 
         return product;
     }

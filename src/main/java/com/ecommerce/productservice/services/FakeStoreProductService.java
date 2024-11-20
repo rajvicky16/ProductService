@@ -1,5 +1,6 @@
 package com.ecommerce.productservice.services;
 
+import com.ecommerce.productservice.configs.Patcher;
 import com.ecommerce.productservice.dtos.FakeStore.FakeStoreRequestProductDto;
 import com.ecommerce.productservice.dtos.FakeStore.FakeStoreResponseProductDto;
 import com.ecommerce.productservice.models.Product;
@@ -15,9 +16,11 @@ import java.util.List;
 @Service
 public class FakeStoreProductService implements ProductService{
     private RestTemplate restTemplate;
+    private Patcher patcher;
 
-    public FakeStoreProductService(RestTemplate restTemplate) {
+    public FakeStoreProductService(RestTemplate restTemplate, Patcher patcher) {
         this.restTemplate = restTemplate;
+        this.patcher = patcher;
     }
 
     @Override
@@ -54,8 +57,11 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public Product updateProduct(Long productId, Product product){
-        FakeStoreRequestProductDto fakeStoreRequestProductDto = FakeStoreRequestProductDto.createFakeStoreProductDtoFromObject(product);
+    public Product updateProduct(Long productId, Product product) throws IllegalAccessException {
+        Product existingFakeStoreProduct = getSingleProduct(productId);
+        patcher.doPatchUpdateForProduct(existingFakeStoreProduct, product);
+
+        FakeStoreRequestProductDto fakeStoreRequestProductDto = FakeStoreRequestProductDto.createFakeStoreProductDtoFromObject(existingFakeStoreProduct);
 
         FakeStoreResponseProductDto fakeStoreResponseProductDto = restTemplate.patchForObject("https://fakestoreapi.com/products/" + productId, fakeStoreRequestProductDto, FakeStoreResponseProductDto.class);
 

@@ -15,7 +15,7 @@ public interface ProductService {
 
     void deleteProduct(Long productId);
 
-    Product updateProduct(Long productId, Product product);
+    Product updateProduct(Long productId, Product product) throws IllegalAccessException;
 
     Product replaceProduct(Long productId, Product product);
 }
