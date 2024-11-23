@@ -1,5 +1,6 @@
 package com.ecommerce.productservice.services;
 
+import com.ecommerce.productservice.exceptions.InvalidRequestException;
 import com.ecommerce.productservice.exceptions.ProductNotFoundException;
 import com.ecommerce.productservice.models.Product;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,9 @@ public interface ProductService {
 
     List<Product> getAllProducts();
 
-    Product createProduct(Product product);
+    Product createProduct(Product product) throws InvalidRequestException;
 
-    void deleteProduct(Long productId);
+    void deleteProduct(Long productId) throws ProductNotFoundException;
 
     Product updateProduct(Long productId, Product product) throws IllegalAccessException, ProductNotFoundException;
 

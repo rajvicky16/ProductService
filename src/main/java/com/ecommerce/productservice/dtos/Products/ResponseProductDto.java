@@ -18,7 +18,7 @@ public class ResponseProductDto {
         ResponseProductDto responseProductDto = new ResponseProductDto();
         responseProductDto.setId(product.getId());
         responseProductDto.setTitle(product.getTitle());
-        responseProductDto.setCategory(product.getCategory().getValue());
+        responseProductDto.setCategory(product.getCategory() == null ? null : product.getCategory().getValue());
         responseProductDto.setDescription(product.getDescription());
         responseProductDto.setImage(product.getImage());
         responseProductDto.setPrice(product.getPrice());

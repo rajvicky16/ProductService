@@ -3,9 +3,11 @@ package com.ecommerce.productservice.controllers;
 import com.ecommerce.productservice.dtos.Products.CreateProductDto;
 import com.ecommerce.productservice.dtos.Products.GetAllProductsResponseDto;
 import com.ecommerce.productservice.dtos.Products.ResponseProductDto;
+import com.ecommerce.productservice.exceptions.InvalidRequestException;
 import com.ecommerce.productservice.exceptions.ProductNotFoundException;
 import com.ecommerce.productservice.models.Product;
 import com.ecommerce.productservice.services.ProductService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping(value = {"/products", "/products/"})
 public class ProductController {
     private ProductService productService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(@Qualifier("productServiceDBImpl") ProductService productService) {
         this.productService = productService;
     }
 
@@ -46,7 +48,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseProductDto> createProduct(@RequestBody CreateProductDto createProductDto){
+    public ResponseEntity<ResponseProductDto> createProduct(@RequestBody CreateProductDto createProductDto) throws InvalidRequestException {
         Product product = productService.createProduct(createProductDto.convertToProductObject());
 
         ResponseEntity<ResponseProductDto> responseEntity = new ResponseEntity<>(
@@ -58,7 +60,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable(name = "id") Long productId){
+    public ResponseEntity<String> deleteProduct(@PathVariable(name = "id") Long productId) throws ProductNotFoundException {
         productService.deleteProduct(productId);
 
         ResponseEntity<String> responseEntity = new ResponseEntity<>(

@@ -1,6 +1,8 @@
 package com.ecommerce.productservice.advices;
 
+import com.ecommerce.productservice.dtos.Products.InvalidRequestExceptionDto;
 import com.ecommerce.productservice.dtos.Products.ProductNotFoundExceptionDto;
+import com.ecommerce.productservice.exceptions.InvalidRequestException;
 import com.ecommerce.productservice.exceptions.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleIllegalAccessException(IllegalAccessException accessException) {
         return new ResponseEntity<>(
           "Error accessing fields. Error message : " + accessException.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<InvalidRequestExceptionDto> handleInvalidRequestException(InvalidRequestException invalidRequestException) {
+        InvalidRequestExceptionDto invalidRequestExceptionDto = new InvalidRequestExceptionDto();
+        invalidRequestExceptionDto.setMessage(invalidRequestException.getMessage());
+        invalidRequestExceptionDto.setSuggestionToFix(invalidRequestException.getSuggestionToFix().split(System.lineSeparator()));
+
+        return new ResponseEntity<>(
+                invalidRequestExceptionDto,
                 HttpStatus.BAD_REQUEST
         );
     }
@@ -49,6 +63,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
                 "Invalid Request. Error Message : " + runtimeException.getMessage(),
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception exception){
+        return new ResponseEntity<>(
+          "Something went wrong. Error Message : " + exception.getMessage(),
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
 }
