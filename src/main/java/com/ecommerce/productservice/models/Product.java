@@ -17,6 +17,7 @@ public class Product extends BaseModel{
     private Double price;
     @ManyToOne
     private Category category;
+    @Column(length = 1000)
     private String description;
     private String image;
 

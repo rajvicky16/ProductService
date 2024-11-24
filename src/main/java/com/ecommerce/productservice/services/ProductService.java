@@ -17,7 +17,7 @@ public interface ProductService {
 
     void deleteProduct(Long productId) throws ProductNotFoundException;
 
-    Product updateProduct(Long productId, Product product) throws IllegalAccessException, ProductNotFoundException;
+    Product updateProduct(Long productId, Product product) throws IllegalAccessException, ProductNotFoundException, InvalidRequestException;
 
-    Product replaceProduct(Long productId, Product product) throws ProductNotFoundException;
+    Product replaceProduct(Long productId, Product product) throws ProductNotFoundException, InvalidRequestException;
 }

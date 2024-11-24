@@ -38,48 +38,97 @@ public class ProductServiceDBImpl implements ProductService {
 
     @Override
     public List<Product> getAllProducts() {
-        return List.of();
+        return productRepository.findAllByIsDeletedFalse();
     }
 
     @Override
     public Product createProduct(Product product) throws InvalidRequestException {
-        if(product.getId() != null){
+/*        if(product.getId() != null){
             throw new InvalidRequestException("Invalid POST Request", "1. Try to remove productId from Request Body." + System.lineSeparator() + "2. Try to change Request type to PUT or PATCH if you wish to REPLACE or UPDATE existing product.");
+        }*/
+        product.setId(null);
+        product.validateMandatoryFields();
+        if(product.getCategory() == null || product.getCategory().getValue().isEmpty()){
+            throw new InvalidRequestException("Category field cannot be empty.", "Please pass valid category name in request body.");
         }
+
+        Category category = getSavedCategory(product.getCategory());
+        product.setCategory(category);
+        product.setCreatedAt(new Date());
+
+        return productRepository.save(product);
+    }
+
+    @Override
+    public void deleteProduct(Long productId) throws ProductNotFoundException{
+        Product product = getSingleProduct(productId);
+        product.setDeleted(true);
+        productRepository.save(product);
+    }
+
+    @Override
+    public Product updateProduct(Long productId, Product product) throws IllegalAccessException, ProductNotFoundException, InvalidRequestException {
+        Product savedProduct = getSingleProduct(productId);
+/*        if(product.getTitle() != null && product.getTitle().isEmpty()){
+            throw new InvalidRequestException("Title field cannot be empty.", "Please pass valid Title name in request body. If you don't wish to update current product title, then please set Title field to null.");
+        }
+        if(product.getPrice() != null && product.getPrice() <= 0D){
+            throw new InvalidRequestException("Not a valid amount.", "Please pass valid Price field in request body. If you don't wish to update current price, then please set price field to null.");
+        }*/
+        if(product.getTitle() != null && product.getTitle().isEmpty()){
+            product.setTitle(null);
+        }
+        if(product.getPrice() != null && product.getPrice() <= 0D){
+            product.setPrice(null);
+        }
+        if(product.getCategory() != null){
+            if(!product.getCategory().getValue().isEmpty()){
+                Category category = getSavedCategory(product.getCategory());
+                product.setCategory(category);
+            }
+            else{
+                product.setCategory(null);
+                /*throw new InvalidRequestException("Category field cannot be empty.", "Please pass valid category name in request body. If you don't wish to update current category name, then please set category field to null.");*/
+            }
+        }
+
+        patcher.doPatchUpdateForProduct(savedProduct, product);
+        savedProduct.setId(productId);
+        savedProduct.setUpdatedAt(new Date());
+
+        return productRepository.save(savedProduct);
+    }
+
+    @Override
+    public Product replaceProduct(Long productId, Product product) throws ProductNotFoundException, InvalidRequestException {
+        Product savedProduct = getSingleProduct(productId);
 
         product.validateMandatoryFields();
         if(product.getCategory() == null || product.getCategory().getValue().isEmpty()){
             throw new InvalidRequestException("Category field cannot be empty.", "Please pass valid category name in request body.");
         }
 
-        Optional<Category> optionalCategory = categoryRepository.findByValueIgnoreCase(product.getCategory().getValue());
-        Category category;
+        Category category = getSavedCategory(product.getCategory());
+        product.setId(productId);
+        product.setCategory(category);
+        product.setCreatedAt(savedProduct.getCreatedAt());
+        product.setUpdatedAt(new Date());
+
+        return productRepository.save(product);
+    }
+
+    private Category getSavedCategory(Category category) {
+        Optional<Category> optionalCategory = categoryRepository.findByValueIgnoreCase(category.getValue());
+        Category resCategory;
+
         if(optionalCategory.isEmpty()){
-            product.getCategory().setCreatedAt(new Date());
-            category = categoryRepository.save(product.getCategory());
+            category.setCreatedAt(new Date());
+            resCategory = categoryRepository.save(category);
         }
         else{
-            category = optionalCategory.get();
+            resCategory = optionalCategory.get();
         }
-        product.setCategory(category);
-        product.setCreatedAt(new Date());
 
-        Product savedProduct = productRepository.save(product);
-        return savedProduct;
-    }
-
-    @Override
-    public void deleteProduct(Long productId) throws ProductNotFoundException{
-
-    }
-
-    @Override
-    public Product updateProduct(Long productId, Product product) throws IllegalAccessException, ProductNotFoundException {
-        return null;
-    }
-
-    @Override
-    public Product replaceProduct(Long productId, Product product) throws ProductNotFoundException {
-        return null;
+        return resCategory;
     }
 }

@@ -76,7 +76,7 @@ public class FakeStoreProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Product updateProduct(Long productId, Product product) throws IllegalAccessException, ProductNotFoundException {
+    public Product updateProduct(Long productId, Product product) throws IllegalAccessException, ProductNotFoundException, InvalidRequestException {
         Product existingFakeStoreProduct = getSingleProduct(productId);
         patcher.doPatchUpdateForProduct(existingFakeStoreProduct, product);
 
@@ -88,7 +88,7 @@ public class FakeStoreProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Product replaceProduct(Long productId, Product product) throws ProductNotFoundException {
+    public Product replaceProduct(Long productId, Product product) throws ProductNotFoundException, InvalidRequestException {
         getSingleProduct(productId);
 
         FakeStoreRequestProductDto fakeStoreRequestProductDto = FakeStoreRequestProductDto.createFakeStoreProductDtoFromObject(product);
