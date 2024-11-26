@@ -72,7 +72,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ResponseProductDto> updateProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto) throws IllegalAccessException, ProductNotFoundException, InvalidRequestException {
+    public ResponseEntity<ResponseProductDto> updateProduct(@PathVariable(name = "id") Long productId, @RequestBody CreateProductDto createProductDto) throws ProductNotFoundException, InvalidRequestException {
         Product product = productService.updateProduct(productId, createProductDto.convertToProductObject());
 
         ResponseEntity<ResponseProductDto> responseEntity = new ResponseEntity<>(

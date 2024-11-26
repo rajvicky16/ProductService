@@ -1,8 +1,8 @@
 package com.ecommerce.productservice.services;
 
-import com.ecommerce.productservice.configs.Patcher;
 import com.ecommerce.productservice.exceptions.InvalidRequestException;
 import com.ecommerce.productservice.exceptions.ProductNotFoundException;
+import com.ecommerce.productservice.mapper.ProductMapper;
 import com.ecommerce.productservice.models.Category;
 import com.ecommerce.productservice.models.Product;
 import com.ecommerce.productservice.repositories.CategoryRepository;
@@ -17,12 +17,12 @@ import java.util.Optional;
 public class ProductServiceDBImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private ProductRepository productRepository;
-    private Patcher patcher;
+    private ProductMapper productMapper;
 
-    public ProductServiceDBImpl(ProductRepository productRepository, Patcher patcher, CategoryRepository categoryRepository){
+    public ProductServiceDBImpl(ProductRepository productRepository, CategoryRepository categoryRepository, ProductMapper productMapper){
         this.productRepository = productRepository;
-        this.patcher = patcher;
         this.categoryRepository = categoryRepository;
+        this.productMapper = productMapper;
     }
 
     @Override
@@ -43,9 +43,6 @@ public class ProductServiceDBImpl implements ProductService {
 
     @Override
     public Product createProduct(Product product) throws InvalidRequestException {
-/*        if(product.getId() != null){
-            throw new InvalidRequestException("Invalid POST Request", "1. Try to remove productId from Request Body." + System.lineSeparator() + "2. Try to change Request type to PUT or PATCH if you wish to REPLACE or UPDATE existing product.");
-        }*/
         product.setId(null);
         product.validateMandatoryFields();
         if(product.getCategory() == null || product.getCategory().getValue().isEmpty()){
@@ -67,19 +64,11 @@ public class ProductServiceDBImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(Long productId, Product product) throws IllegalAccessException, ProductNotFoundException, InvalidRequestException {
+    public Product updateProduct(Long productId, Product product) throws ProductNotFoundException, InvalidRequestException {
         Product savedProduct = getSingleProduct(productId);
-/*        if(product.getTitle() != null && product.getTitle().isEmpty()){
-            throw new InvalidRequestException("Title field cannot be empty.", "Please pass valid Title name in request body. If you don't wish to update current product title, then please set Title field to null.");
-        }
-        if(product.getPrice() != null && product.getPrice() <= 0D){
-            throw new InvalidRequestException("Not a valid amount.", "Please pass valid Price field in request body. If you don't wish to update current price, then please set price field to null.");
-        }*/
+
         if(product.getTitle() != null && product.getTitle().isEmpty()){
             product.setTitle(null);
-        }
-        if(product.getPrice() != null && product.getPrice() <= 0D){
-            product.setPrice(null);
         }
         if(product.getCategory() != null){
             if(!product.getCategory().getValue().isEmpty()){
@@ -88,13 +77,13 @@ public class ProductServiceDBImpl implements ProductService {
             }
             else{
                 product.setCategory(null);
-                /*throw new InvalidRequestException("Category field cannot be empty.", "Please pass valid category name in request body. If you don't wish to update current category name, then please set category field to null.");*/
             }
         }
 
-        patcher.doPatchUpdateForProduct(savedProduct, product);
+        productMapper.patchProduct(product, savedProduct);
         savedProduct.setId(productId);
         savedProduct.setUpdatedAt(new Date());
+        savedProduct.validateMandatoryFields();
 
         return productRepository.save(savedProduct);
     }
@@ -109,8 +98,8 @@ public class ProductServiceDBImpl implements ProductService {
         }
 
         Category category = getSavedCategory(product.getCategory());
-        product.setId(productId);
         product.setCategory(category);
+        product.setId(productId);
         product.setCreatedAt(savedProduct.getCreatedAt());
         product.setUpdatedAt(new Date());
 
