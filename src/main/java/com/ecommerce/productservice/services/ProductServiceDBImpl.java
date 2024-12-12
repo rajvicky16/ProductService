@@ -29,7 +29,7 @@ public class ProductServiceDBImpl implements ProductService {
     public Product getSingleProduct(Long productId) throws ProductNotFoundException {
         Optional<Product> optionalProduct = productRepository.findById(productId);
 
-        if(optionalProduct.isEmpty() || optionalProduct.get().isDeleted()){
+        if(optionalProduct.isEmpty() || optionalProduct.get().getIsDeleted()){
             throw new ProductNotFoundException(productId, "Product Not Found. Please enter valid Product ID");
         }
 
@@ -51,7 +51,6 @@ public class ProductServiceDBImpl implements ProductService {
 
         Category category = getSavedCategory(product.getCategory());
         product.setCategory(category);
-        product.setCreatedAt(new Date());
 
         return productRepository.save(product);
     }
@@ -59,7 +58,7 @@ public class ProductServiceDBImpl implements ProductService {
     @Override
     public void deleteProduct(Long productId) throws ProductNotFoundException{
         Product product = getSingleProduct(productId);
-        product.setDeleted(true);
+        product.setIsDeleted(true);
         productRepository.save(product);
     }
 
@@ -82,7 +81,6 @@ public class ProductServiceDBImpl implements ProductService {
 
         productMapper.patchProduct(product, savedProduct);
         savedProduct.setId(productId);
-        savedProduct.setUpdatedAt(new Date());
         savedProduct.validateMandatoryFields();
 
         return productRepository.save(savedProduct);
@@ -100,8 +98,6 @@ public class ProductServiceDBImpl implements ProductService {
         Category category = getSavedCategory(product.getCategory());
         product.setCategory(category);
         product.setId(productId);
-        product.setCreatedAt(savedProduct.getCreatedAt());
-        product.setUpdatedAt(new Date());
 
         return productRepository.save(product);
     }
