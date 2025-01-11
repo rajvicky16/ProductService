@@ -6,6 +6,7 @@ import com.ecommerce.productservice.dtos.FakeStore.FakeStoreResponseProductDto;
 import com.ecommerce.productservice.exceptions.InvalidRequestException;
 import com.ecommerce.productservice.exceptions.ProductNotFoundException;
 import com.ecommerce.productservice.models.Product;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -21,21 +22,36 @@ import java.util.List;
 public class FakeStoreProductServiceImpl implements ProductService{
     private RestTemplate restTemplate;
     private Patcher patcher;
+    private RedisTemplate<String, Object> redisTemplate;
 
-    public FakeStoreProductServiceImpl(RestTemplate restTemplate, Patcher patcher) {
+    public FakeStoreProductServiceImpl(RestTemplate restTemplate, Patcher patcher, RedisTemplate redisTemplate) {
         this.restTemplate = restTemplate;
         this.patcher = patcher;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
     public Product getSingleProduct(Long productId) throws ProductNotFoundException {
+        Product currProduct;
+
+        //check if present in cache
+        currProduct = (Product) redisTemplate.opsForHash().get("product", productId.toString());
+        if(currProduct != null){
+            return currProduct;
+        }
+
+        //get from API
         FakeStoreResponseProductDto fakeStoreResponseProductDto = restTemplate.getForObject("https://fakestoreapi.com/products/" + productId, FakeStoreResponseProductDto.class);
 
         if(fakeStoreResponseProductDto == null){
             throw new ProductNotFoundException(productId, "Product Not Found. Please enter valid Product ID");
         }
+        currProduct = fakeStoreResponseProductDto.convertToProduct();
 
-        return fakeStoreResponseProductDto.convertToProduct();
+        //put in cache
+        redisTemplate.opsForHash().put("product", productId.toString(), currProduct);
+
+        return currProduct;
     }
 
     @Override
