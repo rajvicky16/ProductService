@@ -6,7 +6,7 @@ import com.ecommerce.productservice.dtos.Products.ResponseProductDto;
 import com.ecommerce.productservice.exceptions.InvalidRequestException;
 import com.ecommerce.productservice.exceptions.ProductNotFoundException;
 import com.ecommerce.productservice.models.Product;
-import com.ecommerce.productservice.services.ProductService;
+import com.ecommerce.productservice.services.Product.ProductService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ import java.util.List;
 public class ProductController {
     private ProductService productService;
 
-    public ProductController(@Qualifier("fakeStoreProductServiceImpl") ProductService productService) {
+    public ProductController(@Qualifier("productServiceDBImpl") ProductService productService) {
         this.productService = productService;
     }
 

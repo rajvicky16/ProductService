@@ -1,4 +1,4 @@
-package com.ecommerce.productservice.services;
+package com.ecommerce.productservice.services.Product;
 
 import com.ecommerce.productservice.configs.Patcher;
 import com.ecommerce.productservice.dtos.FakeStore.FakeStoreRequestProductDto;
