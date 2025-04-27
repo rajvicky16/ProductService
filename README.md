@@ -26,7 +26,7 @@ ProductService is a Spring Boot application designed to manage product-related o
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/rajvicky16/productservice.git
+git clone https://github.com/rajvicky16/ProductService.git
 cd productservice
 ```
 
